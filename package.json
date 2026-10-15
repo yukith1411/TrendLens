@@ -1,0 +1,11 @@
+{
+  "name": "trendlens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TrendLens FastAPI application",
+  "scripts": {
+    "dev": ".\\.venv-1\\Scripts\\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload",
+    "start": ".\\.venv-1\\Scripts\\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000",
+    "test": ".\\.venv-1\\Scripts\\python.exe -m pytest"
+  }
+}

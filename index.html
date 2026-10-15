@@ -1,0 +1,2197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TrendLens — Trending Market Apps, Global News & Predictive Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090d16;
+      --bg-alt: #0e1526;
+      --panel: #131d33;
+      --panel-hover: #182542;
+      --border: #233352;
+      --border-focus: #4e80ee;
+      --text: #f0f4fc;
+      --muted: #8fa0c0;
+      --accent: #5ef1d2;
+      --accent-glow: rgba(94, 241, 210, 0.2);
+      --accent-purple: #9f86ff;
+      --accent-purple-glow: rgba(159, 134, 255, 0.2);
+      --danger: #ff6b8b;
+      --success: #3dd68c;
+      --warning: #ffb84d;
+      --radius: 14px;
+      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(94, 241, 210, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(159, 134, 255, 0.06) 0%, transparent 45%);
+      color: var(--text);
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    main {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 30px 24px 60px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 22px;
+      color: #090d16;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      background: linear-gradient(180deg, #ffffff 30%, #cad7f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: rgba(19, 29, 51, 0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 30px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    .pulse-dot.red {
+      background: var(--danger);
+      box-shadow: 0 0 10px var(--danger);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Live Market Ticker */
+    .market-ticker {
+      margin: 18px 0 22px;
+      background: rgba(14, 21, 38, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .ticker-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .ticker-items {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+    .ticker-chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ticker-chip:hover {
+      border-color: var(--accent);
+      background: var(--panel-hover);
+      transform: translateY(-1px);
+    }
+    .ticker-change {
+      color: var(--success);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+    }
+
+    /* Navigation Mode Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 6px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: fit-content;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .tab-btn.active {
+      color: var(--text);
+      background: var(--panel);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+    }
+    .tab-btn.active .tab-icon {
+      color: var(--accent);
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Menu / Filter Bar for Trending Market */
+    .filter-menu-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .filter-group-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-pill:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(94, 241, 210, 0.06);
+    }
+    .filter-pill.active {
+      color: #090d16;
+      background: var(--accent);
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+    .country-filter-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(35, 51, 82, 0.6);
+      transition: var(--transition);
+    }
+    .country-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .country-pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 13px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .country-pill:hover {
+      color: var(--text);
+      border-color: var(--accent-purple);
+      background: rgba(159, 134, 255, 0.08);
+    }
+    .country-pill.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, #7957ff, #5833e6);
+      border-color: #8c6aff;
+      box-shadow: 0 2px 10px var(--accent-purple-glow);
+    }
+    .search-input-wrap {
+      position: relative;
+      min-width: 240px;
+    }
+    .search-input-wrap input {
+      width: 100%;
+      padding: 9px 14px 9px 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .search-input-wrap input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Market Cards Grid */
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+      gap: 18px;
+    }
+    .market-card {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .market-card:hover {
+      border-color: rgba(94, 241, 210, 0.5);
+      background: var(--panel-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+    .market-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-icon {
+      font-size: 26px;
+      width: 44px;
+      height: 44px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .app-info h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .app-country {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .category-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .category-badge.entertainment {
+      background: rgba(94, 241, 210, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(94, 241, 210, 0.3);
+    }
+    .category-badge.news {
+      background: rgba(255, 107, 139, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(255, 107, 139, 0.3);
+    }
+    .category-badge.sub {
+      background: rgba(143, 160, 192, 0.12);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .app-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .app-metrics-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .vol-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .vol-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .vol-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+    }
+    .growth-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .growth-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .growth-pill.positive { color: var(--success); }
+    .growth-pill.negative { color: var(--danger); }
+    .status-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .forecast-btn {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(31, 194, 159, 0.2), rgba(74, 117, 255, 0.25));
+      border: 1px solid var(--accent);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .forecast-btn:hover {
+      background: linear-gradient(135deg, #1fc29f, #4a75ff);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(31, 194, 159, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* Common Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    input, select, textarea {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: var(--bg-alt);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    textarea {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.5;
+    }
+
+    /* Preset Buttons */
+    .preset-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .preset-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .preset-chip {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preset-chip:hover {
+      border-color: var(--accent);
+      background: rgba(94, 241, 210, 0.08);
+      transform: translateY(-1px);
+    }
+
+    /* Live Data Stats Bar */
+    .data-stats-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .stats-chips {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .stats-chips strong {
+      color: var(--text);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge.ready { color: var(--success); }
+    .status-badge.warning { color: var(--warning); }
+    .status-badge.error { color: var(--danger); }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .checkbox-label {
+      flex-direction: row;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .checkbox-label input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 20px;
+      background: var(--bg-alt);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--panel-hover);
+      transform: translateY(-1px);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #1fc29f, #4a75ff);
+      border: none;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(31, 194, 159, 0.3);
+    }
+    button.primary:hover:not(:disabled) {
+      box-shadow: 0 6px 22px rgba(31, 194, 159, 0.45);
+      filter: brightness(1.08);
+    }
+    button.danger {
+      border-color: rgba(255, 107, 139, 0.4);
+      color: var(--danger);
+    }
+
+    /* File Dropzone */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(14, 21, 38, 0.5);
+      margin-bottom: 20px;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(94, 241, 210, 0.05);
+    }
+    .dropzone-icon {
+      font-size: 38px;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+
+    /* Notice & Status */
+    .notice {
+      border-left: 3px solid var(--accent);
+      background: rgba(17, 41, 54, 0.7);
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin: 18px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #status {
+      min-height: 24px;
+      font-size: 14px;
+      color: #ffca88;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    /* Results Dashboard */
+    #results {
+      margin-top: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .results-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .results-heading {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .source-tag {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid var(--border);
+    }
+    .source-tag.live {
+      background: rgba(94, 241, 210, 0.15);
+      color: var(--accent);
+      border-color: rgba(94, 241, 210, 0.4);
+    }
+    .source-tag.demo {
+      background: rgba(159, 134, 255, 0.15);
+      color: var(--accent-purple);
+      border-color: rgba(159, 134, 255, 0.4);
+    }
+    .source-tag.imported {
+      background: rgba(255, 184, 77, 0.15);
+      color: var(--warning);
+      border-color: rgba(255, 184, 77, 0.4);
+    }
+    .source-tag.market {
+      background: rgba(94, 241, 210, 0.15);
+      color: var(--accent);
+      border-color: rgba(94, 241, 210, 0.5);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+    .kpi-card.highlight::before {
+      background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+    }
+    .kpi-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 8px;
+      letter-spacing: -0.5px;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .kpi-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .kpi-trend.up { color: var(--success); }
+    .kpi-trend.down { color: var(--danger); }
+    .kpi-trend.neutral { color: var(--muted); }
+
+    /* Chart Section */
+    .chart-panel {
+      margin-bottom: 20px;
+    }
+    .chart-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chart-panel-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .chart-wrap {
+      height: 360px;
+      position: relative;
+    }
+    .chart-caption {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    /* Details Grid */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    td:last-child {
+      text-align: right;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .insight-card p {
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .insight-card .sub-text {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Watchlist Section */
+    .watchlist-bar {
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .watchlist-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .watchlist-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .watch-chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .watch-chip:hover {
+      border-color: var(--accent);
+    }
+    .watch-chip-remove {
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .watch-chip-remove:hover { color: var(--danger); }
+
+    /* Footer */
+    footer {
+      color: var(--muted);
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 860px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .details-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+      .kpi-value { font-size: 23px; }
+      .chart-wrap { height: 280px; }
+    }
+    @media (max-width: 540px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="brand-title">
+        <div class="brand-logo">T</div>
+        <h1>TrendLens</h1>
+      </div>
+      <p>Real-Time Market Trend Intelligence & Predictive Analytics</p>
+    </div>
+    <div class="badge">
+      <span class="pulse-dot"></span>
+      <span id="header-pulse-text">Live Market Active</span>
+    </div>
+  </header>
+
+  <!-- Live Market Ticker Menu Bar -->
+  <div class="market-ticker" aria-label="Top market trends ticker">
+    <div class="ticker-label">
+      <span class="pulse-dot red"></span>
+      <span>Live Market Pulse:</span>
+    </div>
+    <div id="ticker-container" class="ticker-items">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- Navigation Mode Tabs -->
+  <nav class="tab-bar" aria-label="Prediction modes">
+    <button id="tab-btn-market" class="tab-btn active" type="button">
+      <span class="tab-icon">🔥</span> Trending Market Apps & News
+    </button>
+    <button id="tab-btn-live" class="tab-btn" type="button">
+      <span class="tab-icon">⚡</span> Direct User Input & Predict
+    </button>
+    <button id="tab-btn-upload" class="tab-btn" type="button">
+      <span class="tab-icon">📁</span> Upload CSV / JSON File
+    </button>
+    <button id="tab-btn-db" class="tab-btn" type="button">
+      <span class="tab-icon">🏛️</span> Database Explorer
+    </button>
+  </nav>
+
+  <!-- TAB 0: Trending Market Apps & Worldwide News Explorer -->
+  <section id="panel-market" class="panel">
+    <!-- Filter Menu Bar -->
+    <div class="filter-menu-bar">
+      <!-- Row 1: Field / Category Filter + Search -->
+      <div class="filter-row">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span class="filter-group-title">🎯 Field:</span>
+          <div class="filter-pills" id="category-pills">
+            <button class="filter-pill active" type="button" data-category="all">🌐 All Fields</button>
+            <button class="filter-pill" type="button" data-category="entertainment">🎬 Entertainment</button>
+            <button class="filter-pill" type="button" data-category="news">📰 News Channels</button>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input id="market-search" type="search" placeholder="Search apps & channels…">
+          </div>
+          <button id="market-refresh-btn" type="button" style="padding: 8px 14px; font-size: 13px;">
+            <span>🔄 Refresh Live</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: Country Filter Bar (Enabled for News / All) -->
+      <div id="country-filter-section" class="country-filter-wrap">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+          <span class="filter-group-title">
+            <span>🌍 News Country Filter (Live Updates):</span>
+            <span class="pulse-dot red" style="width: 6px; height: 6px;"></span>
+          </span>
+          <span id="market-count-badge" style="font-size: 12px; color: var(--muted); font-weight: 600;">Loading…</span>
+        </div>
+        <div class="country-pills" id="country-pills">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div id="market-cards-grid" class="market-grid">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </section>
+
+  <!-- TAB 1: Live Real-Time Data Predictor (User Input) -->
+  <section id="panel-live" class="panel" hidden>
+    <div class="preset-row">
+      <span class="preset-label">Quick Presets:</span>
+      <button class="preset-chip" type="button" data-preset="viral">🚀 Viral Breakout</button>
+      <button class="preset-chip" type="button" data-preset="steady">📈 Steady Momentum</button>
+      <button class="preset-chip" type="button" data-preset="cyclic">🌊 24h Daily Cycle</button>
+      <button class="preset-chip" type="button" data-preset="cooling">📉 Cooling Trend</button>
+      <button class="preset-chip" type="button" data-preset="random">🎲 Realistic Walk</button>
+    </div>
+
+    <div class="form-grid">
+      <label>Topic / Keyword
+        <input id="live-topic" type="text" placeholder="e.g. ai-agents, my-product" value="ai-agents">
+      </label>
+
+      <label>Platform
+        <select id="live-platform">
+          <option value="instagram" selected>Instagram</option>
+          <option value="tiktok">TikTok</option>
+          <option value="x">X / Twitter</option>
+          <option value="youtube">YouTube</option>
+          <option value="facebook">Facebook</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="threads">Threads</option>
+          <option value="reddit">Reddit</option>
+        </select>
+      </label>
+
+      <label>Forecast Horizon
+        <select id="live-horizon">
+          <option value="12">Next 12 Hours</option>
+          <option value="24" selected>Next 24 Hours</option>
+          <option value="48">Next 48 Hours</option>
+          <option value="72">Next 72 Hours</option>
+        </select>
+      </label>
+
+      <label>Start Hour (UTC, optional)
+        <input id="live-start" type="datetime-local">
+      </label>
+    </div>
+
+    <label style="margin-bottom: 12px;">Real-Time Data Points (Counts / Mentions / Volumes)
+      <textarea id="live-data" placeholder="Enter or paste numbers (comma, space, or newline separated), e.g.:
+120, 135, 142, 160, 185, 210, 240, 265, 310, 345, 390, 430
+Or timestamp pairs:
+2026-10-12T01:00, 120
+2026-10-12T02:00, 135"></textarea>
+    </label>
+
+    <div class="data-stats-bar">
+      <div class="stats-chips">
+        <span>Points: <strong id="stats-count">0</strong></span>
+        <span>Min: <strong id="stats-min">—</strong></span>
+        <span>Max: <strong id="stats-max">—</strong></span>
+        <span>Mean: <strong id="stats-mean">—</strong></span>
+      </div>
+      <div id="stats-status" class="status-badge warning">Enter at least 3 numbers</div>
+    </div>
+
+    <div class="btn-row">
+      <label class="checkbox-label">
+        <input id="live-save" type="checkbox">
+        <span>Save series to database for persistent tracking</span>
+      </label>
+      <div class="btn-group">
+        <button id="live-clear" type="button">Clear</button>
+        <button id="live-predict-btn" class="primary" type="button">
+          <span>✨ Forecast Real-Time Trend</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2: File Upload -->
+  <section id="panel-upload" class="panel" hidden>
+    <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop CSV or JSON file here">
+      <div class="dropzone-icon">📁</div>
+      <div class="dropzone-text">Drag & drop your CSV or JSON data file here</div>
+      <div class="dropzone-sub">or click to browse from your device (.csv, .json, .txt)</div>
+      <input id="file-input" type="file" accept=".csv,.json,.txt" hidden>
+    </div>
+
+    <div class="form-grid">
+      <label>Topic Name (Overrides file)
+        <input id="upload-topic" type="text" placeholder="e.g. uploaded-trend">
+      </label>
+      <label>Platform
+        <select id="upload-platform">
+          <option value="instagram" selected>Instagram</option>
+          <option value="tiktok">TikTok</option>
+          <option value="x">X / Twitter</option>
+          <option value="youtube">YouTube</option>
+          <option value="facebook">Facebook</option>
+          <option value="linkedin">LinkedIn</option>
+        </select>
+      </label>
+      <label>Forecast Horizon
+        <select id="upload-horizon">
+          <option value="12">Next 12 Hours</option>
+          <option value="24" selected>Next 24 Hours</option>
+          <option value="48">Next 48 Hours</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="upload-preview-wrap" hidden style="margin-bottom: 20px;">
+      <h3 style="font-size: 15px; margin-bottom: 8px;">File Preview: <span id="upload-filename" style="color: var(--accent);"></span> (<span id="upload-count"></span> rows detected)</h3>
+      <div style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-alt);">
+        <table style="font-size: 13px;" id="upload-preview-table">
+          <thead>
+            <tr><th style="padding: 6px 12px; text-align: left;">#</th><th style="padding: 6px 12px; text-align: left;">Timestamp / Label</th><th style="padding: 6px 12px; text-align: right;">Volume</th></tr>
+          </thead>
+          <tbody id="upload-preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <label class="checkbox-label">
+        <input id="upload-save" type="checkbox" checked>
+        <span>Save parsed series to database</span>
+      </label>
+      <div class="btn-group">
+        <button id="upload-predict-btn" class="primary" type="button" disabled>
+          <span>✨ Predict from Uploaded File</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: Database Explorer -->
+  <section id="panel-db" class="panel" hidden>
+    <div class="form-grid">
+      <label>Dataset
+        <select id="db-dataset">
+          <option value="demo">Synthetic demo dataset</option>
+          <option value="imported">Imported observations</option>
+        </select>
+      </label>
+
+      <label>Platform
+        <select id="db-platform">
+          <option value="instagram" selected>Instagram</option>
+          <option value="facebook">Facebook</option>
+          <option value="x">X / Twitter</option>
+          <option value="tiktok">TikTok</option>
+          <option value="linkedin">LinkedIn</option>
+        </select>
+      </label>
+
+      <label>Search Topics
+        <input id="db-search" type="search" placeholder="Filter topic names">
+      </label>
+
+      <label>Select Topic
+        <select id="db-topic" aria-label="Select stored topic"></select>
+      </label>
+    </div>
+
+    <div class="btn-row" style="margin-top: 10px;">
+      <div id="db-actions-left">
+        <button id="db-delete-btn" class="danger" type="button" hidden>Delete Selected Topic</button>
+      </div>
+      <div class="btn-group">
+        <button id="db-refresh-btn" type="button">🔄 Refresh Topics</button>
+        <button id="db-load-btn" class="primary" type="button">Load Trend & Forecast</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scope & Status Bar -->
+  <div id="scope-notice" class="notice"></div>
+  <div id="status" role="status" aria-live="polite"></div>
+
+  <!-- RESULTS DASHBOARD -->
+  <section id="results" hidden>
+    <div class="results-header">
+      <div class="results-title-group">
+        <h2 id="heading" class="results-heading"></h2>
+        <span id="source-badge" class="source-tag"></span>
+        <span id="model-badge" class="badge" style="font-size: 12px; padding: 4px 10px;"></span>
+      </div>
+      <div class="btn-group">
+        <button id="watch-btn" type="button">⭐ Save to Watchlist</button>
+        <button id="export-btn" type="button">📥 Export Forecast CSV</button>
+      </div>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Observed Activity</div>
+        <div id="kpi-previous" class="kpi-value">0</div>
+        <div class="kpi-trend neutral" id="kpi-prev-desc">Historical period</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Forecasted Activity</div>
+        <div id="kpi-predicted" class="kpi-value">0</div>
+        <div class="kpi-trend" id="kpi-pred-desc">Future projection</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Observed Momentum</div>
+        <div id="kpi-observed-growth" class="kpi-value">—</div>
+        <div class="kpi-trend" id="kpi-obs-trend">Past velocity</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Predicted Growth</div>
+        <div id="kpi-forecast-growth" class="kpi-value">—</div>
+        <div class="kpi-trend" id="kpi-pred-trend">Projected change</div>
+      </div>
+    </div>
+
+    <!-- Interactive Chart -->
+    <section class="panel chart-panel">
+      <div class="chart-panel-header">
+        <h2>Activity History and Projected Horizon</h2>
+        <span style="font-size: 13px; color: var(--muted);" id="chart-freshness"></span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="activity-chart" role="img" aria-label="Hourly activity timeline and future forecast"></canvas>
+      </div>
+      <p class="chart-caption">
+        <strong>Solid line:</strong> Historical observation counts.
+        <strong>Dashed line:</strong> Machine-learning predictive forecast.
+        Times are displayed in your local browser timezone.
+      </p>
+    </section>
+
+    <!-- Deep-Dive Metrics & Interpretation -->
+    <div class="details-grid">
+      <section class="panel">
+        <h2 style="font-size: 17px; margin-bottom: 14px;">Model Evaluation & Reliability</h2>
+        <table aria-label="Chronological holdout validation metrics">
+          <tbody id="metrics-table"></tbody>
+        </table>
+        <p id="eval-note" style="color: var(--muted); font-size: 13px; margin-top: 14px; line-height: 1.5;"></p>
+      </section>
+
+      <section class="panel insight-card">
+        <h2 style="font-size: 17px; margin-bottom: 14px;">Momentum & Qualitative Interpretation</h2>
+        <p id="insight-text"></p>
+        <p id="insight-peak" style="font-weight: 600; color: var(--accent);"></p>
+        <p class="sub-text">
+          Activity represents hourly collected volume/mentions. Predictive analytics extrapolate continuous momentum,
+          cyclical rhythms, and auto-regressive dynamics.
+        </p>
+      </section>
+    </div>
+
+    <!-- Watchlist Bar -->
+    <div id="watchlist-container" class="watchlist-bar" hidden>
+      <span class="watchlist-title">Pinned Watchlist:</span>
+      <div id="watchlist-chips" class="watchlist-chips"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>TrendLens Engine · Adaptive Time-Series Forecasting (Ridge & Damped Momentum)</div>
+    <div>Local Client Session · Privacy Preserved</div>
+  </footer>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const number = val => new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(val);
+  const percent = val => val == null ? "N/A" : `${val > 0 ? "+" : ""}${val.toFixed(1)}%`;
+
+  let current = null;
+  let chartInstance = null;
+  let activeTab = "market";
+  let topicItems = [];
+  let parsedFileRecords = [];
+
+  // Market state
+  let currentCategory = "all";
+  let currentCountry = "all";
+  let marketItems = [];
+
+  // Tab Switching
+  const tabs = [
+    { id: "market", btn: $("tab-btn-market"), panel: $("panel-market") },
+    { id: "live", btn: $("tab-btn-live"), panel: $("panel-live") },
+    { id: "upload", btn: $("tab-btn-upload"), panel: $("panel-upload") },
+    { id: "db", btn: $("tab-btn-db"), panel: $("panel-db") }
+  ];
+
+  function switchTab(tabId) {
+    activeTab = tabId;
+    tabs.forEach(t => {
+      if (t.id === tabId) {
+        t.btn.classList.add("active");
+        t.panel.hidden = false;
+      } else {
+        t.btn.classList.remove("active");
+        t.panel.hidden = true;
+      }
+    });
+    updateScopeNotice();
+    if (tabId === "market" && !marketItems.length) {
+      loadMarketData();
+    }
+  }
+
+  tabs.forEach(t => t.btn.addEventListener("click", () => switchTab(t.id)));
+
+  // MARKET DATA & FILTERS
+  async function loadMarketData() {
+    $("market-count-badge").textContent = "Fetching live pulse…";
+    try {
+      const search = $("market-search").value.trim();
+      const params = new URLSearchParams({
+        category: currentCategory,
+        country: currentCountry,
+        search
+      });
+
+      const res = await fetch(`/api/trending-market?${params.toString()}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to load market data.");
+
+      marketItems = data.items || [];
+      $("market-count-badge").textContent = `Showing ${marketItems.length} Live Items`;
+
+      // Render Country Pills if not already built
+      renderCountryPills(data.countries || []);
+
+      // Render Cards Grid
+      renderMarketGrid(marketItems);
+
+      // Render Live Ticker Bar
+      renderTicker(marketItems);
+    } catch (err) {
+      $("market-count-badge").textContent = "Error loading trends";
+      $("status").textContent = `❌ ${err.message}`;
+    }
+  }
+
+  function renderCountryPills(countries) {
+    const container = $("country-pills");
+    if (container.children.length > 0) return; // already rendered
+
+    container.replaceChildren(
+      ...countries.map(c => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `country-pill ${c.code.toLowerCase() === currentCountry.toLowerCase() ? "active" : ""}`;
+        btn.innerHTML = `<span>${c.flag}</span> <span>${c.name}</span>`;
+        btn.addEventListener("click", () => {
+          currentCountry = c.code;
+          container.querySelectorAll(".country-pill").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          loadMarketData();
+        });
+        return btn;
+      })
+    );
+  }
+
+  function renderTicker(items) {
+    const container = $("ticker-container");
+    container.replaceChildren(
+      ...items.slice(0, 8).map(item => {
+        const chip = document.createElement("div");
+        chip.className = "ticker-chip";
+        chip.innerHTML = `<span>${item.icon}</span> <span>${item.name}</span> <span class="ticker-change">+${item.growth_24h}%</span>`;
+        chip.addEventListener("click", () => forecastMarketItem(item));
+        return chip;
+      })
+    );
+  }
+
+  function renderMarketGrid(items) {
+    const grid = $("market-cards-grid");
+    if (!items.length) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
+          <div style="font-size: 32px; margin-bottom: 10px;">🔍</div>
+          <div style="font-size: 16px; font-weight: 600; color: var(--text);">No matching trending apps or news channels found</div>
+          <div style="font-size: 13px; margin-top: 6px;">Try switching the country or field filter above.</div>
+        </div>
+      `;
+      return;
+    }
+
+    grid.replaceChildren(
+      ...items.map(item => {
+        const card = document.createElement("div");
+        card.className = "market-card";
+        const catClass = item.category === "entertainment" ? "entertainment" : "news";
+
+        card.innerHTML = `
+          <div>
+            <div class="market-card-top">
+              <div class="app-brand">
+                <div class="app-icon">${item.icon}</div>
+                <div class="app-info">
+                  <h3>${item.name}</h3>
+                  <div class="app-country">
+                    <span>${item.flag}</span>
+                    <span>${item.country_name}</span>
+                  </div>
+                </div>
+              </div>
+              <span class="status-text">${item.status}</span>
+            </div>
+
+            <div class="tag-row">
+              <span class="category-badge ${catClass}">${item.category}</span>
+              <span class="category-badge sub">${item.badge}</span>
+            </div>
+
+            <p class="app-desc">${item.description}</p>
+          </div>
+
+          <div>
+            <div class="app-metrics-box">
+              <div class="vol-stat">
+                <span class="vol-label">Live Activity / Hr</span>
+                <span class="vol-val">${number(item.current_volume)}</span>
+              </div>
+              <div class="growth-stat">
+                <span class="vol-label">24h Growth</span>
+                <span class="growth-pill ${item.growth_24h >= 0 ? 'positive' : 'negative'}">
+                  ${item.growth_24h >= 0 ? '▲ +' : '▼ '}${Math.abs(item.growth_24h)}%
+                </span>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button class="forecast-btn" type="button">
+                <span>⚡ Forecast Next 24h</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector(".forecast-btn").addEventListener("click", () => forecastMarketItem(item));
+        return card;
+      })
+    );
+  }
+
+  // One-click Forecast for Market Item
+  async function forecastMarketItem(item) {
+    $("status").textContent = `Generating AI trend forecast for ${item.name} (${item.country_name})…`;
+
+    try {
+      const response = await fetch("/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: `${item.id}-market-live`,
+          platform: item.platform_key || "instagram",
+          items: item.hourly_series,
+          horizon: 24,
+          save: false
+        })
+      });
+
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.detail || "Prediction request failed.");
+
+      // Enrich result display
+      body.topic = `${item.name} (${item.country_name})`;
+      body.dataset = "market";
+      current = body;
+      render(body);
+      $("status").textContent = `✓ Forecast generated for ${item.name} · ${item.status}!`;
+    } catch (err) {
+      $("status").textContent = `❌ ${err.message}`;
+    }
+  }
+
+  // Category filter clicks
+  $("category-pills").querySelectorAll(".filter-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentCategory = btn.dataset.category;
+      $("category-pills").querySelectorAll(".filter-pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // Highlight country section when news is selected
+      const countrySec = $("country-filter-section");
+      if (currentCategory === "news") {
+        countrySec.style.opacity = "1";
+      } else {
+        countrySec.style.opacity = "0.9";
+      }
+
+      loadMarketData();
+    });
+  });
+
+  $("market-search").addEventListener("input", () => {
+    loadMarketData();
+  });
+  $("market-refresh-btn").addEventListener("click", () => {
+    loadMarketData();
+  });
+
+  // Preset Data Generators for Tab 1
+  const PRESETS = {
+    viral: [100, 105, 112, 120, 135, 155, 185, 230, 290, 370, 480, 620, 790, 1010, 1290, 1640],
+    steady: [150, 158, 165, 172, 180, 189, 197, 205, 214, 222, 231, 240, 248, 258, 267, 275, 285, 295],
+    cyclic: [
+      120, 95, 80, 72, 68, 75, 95, 130, 175, 220, 260, 285, 290, 275, 250, 230, 225, 240, 265, 250, 220, 185, 150, 130,
+      122, 98, 83, 70, 65, 78, 100, 135, 180, 225, 265, 290, 295, 280, 255, 235, 230, 245, 270, 255, 225, 190, 155, 135
+    ],
+    cooling: [850, 820, 790, 740, 690, 640, 600, 560, 530, 500, 470, 445, 420, 400, 385, 370],
+    random: () => {
+      const arr = [100];
+      for (let i = 1; i < 24; i++) {
+        const delta = Math.round((Math.random() - 0.42) * 18);
+        arr.push(Math.max(20, arr[i - 1] + delta));
+      }
+      return arr;
+    }
+  };
+
+  document.querySelectorAll(".preset-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const type = chip.dataset.preset;
+      const data = typeof PRESETS[type] === "function" ? PRESETS[type]() : PRESETS[type];
+      $("live-data").value = data.join(", ");
+      updateLiveStats();
+      $("status").textContent = `Loaded preset: ${chip.textContent.trim()}. Click "Forecast Real-Time Trend" below!`;
+    });
+  });
+
+  // Parse Textarea numbers
+  function parseNumbersFromText(text) {
+    if (!text) return [];
+    const tokens = text.match(/[-+]?(?:\d*\.\d+|\d+)/g);
+    if (!tokens) return [];
+    return tokens.map(t => parseFloat(t)).filter(n => !isNaN(n) && isFinite(n));
+  }
+
+  function updateLiveStats() {
+    const nums = parseNumbersFromText($("live-data").value);
+    const count = nums.length;
+    $("stats-count").textContent = count;
+
+    if (count === 0) {
+      $("stats-min").textContent = "—";
+      $("stats-max").textContent = "—";
+      $("stats-mean").textContent = "—";
+      $("stats-status").className = "status-badge warning";
+      $("stats-status").textContent = "Enter at least 3 numbers";
+      return;
+    }
+
+    const min = Math.min(...nums);
+    const max = Math.max(...nums);
+    const mean = (nums.reduce((a, b) => a + b, 0) / count).toFixed(1);
+
+    $("stats-min").textContent = min;
+    $("stats-max").textContent = max;
+    $("stats-mean").textContent = mean;
+
+    if (count < 3) {
+      $("stats-status").className = "status-badge warning";
+      $("stats-status").textContent = "Need at least 3 points";
+    } else if (nums.some(n => n < 0)) {
+      $("stats-status").className = "status-badge error";
+      $("stats-status").textContent = "All values must be ≥ 0";
+    } else {
+      $("stats-status").className = "status-badge ready";
+      $("stats-status").textContent = `✓ Ready (${count} observations)`;
+    }
+  }
+
+  $("live-data").addEventListener("input", updateLiveStats);
+  $("live-clear").addEventListener("click", () => {
+    $("live-data").value = "";
+    updateLiveStats();
+  });
+
+  // Predict User Input
+  async function predictLiveData() {
+    const raw = $("live-data").value.trim();
+    const topic = $("live-topic").value.trim() || "custom-topic";
+    const platform = $("live-platform").value;
+    const horizon = parseInt($("live-horizon").value, 10) || 24;
+    const startVal = $("live-start").value ? new Date($("live-start").value).toISOString() : null;
+    const save = $("live-save").checked;
+
+    const nums = parseNumbersFromText(raw);
+    if (nums.length < 3) {
+      $("status").textContent = "⚠️ Please provide at least 3 numbers in the input box to predict.";
+      return;
+    }
+
+    $("status").textContent = "Analyzing momentum and generating forecast…";
+    $("live-predict-btn").disabled = true;
+
+    try {
+      const response = await fetch("/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          platform,
+          raw_text: raw,
+          horizon,
+          start_hour: startVal,
+          save
+        })
+      });
+
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.detail || "Prediction request failed.");
+      }
+
+      current = body;
+      render(body);
+      $("status").textContent = body.saved
+        ? `✓ Real-time forecast generated and saved to database (${body.saved_count} points stored under "imported")!`
+        : "✓ Real-time forecast generated successfully!";
+    } catch (err) {
+      $("status").textContent = `❌ ${err.message}`;
+    } finally {
+      $("live-predict-btn").disabled = false;
+    }
+  }
+
+  $("live-predict-btn").addEventListener("click", predictLiveData);
+
+  // File Upload Handlers
+  const dropzone = $("dropzone");
+  const fileInput = $("file-input");
+
+  dropzone.addEventListener("click", () => fileInput.click());
+  dropzone.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") fileInput.click(); });
+  dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+  dropzone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+  });
+
+  async function handleFile(file) {
+    try {
+      $("status").textContent = `Parsing ${file.name}…`;
+      const text = await file.text();
+      let records = [];
+
+      if (file.name.endsWith(".json")) {
+        const json = JSON.parse(text);
+        if (Array.isArray(json)) {
+          records = json.map(item => {
+            if (typeof item === "number") return { volume: item };
+            return {
+              hour: item.hour || item.timestamp || item.time || null,
+              volume: parseFloat(item.volume || item.value || item.count || item.mentions || 0)
+            };
+          });
+        }
+      } else {
+        // CSV parsing
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length > 0) {
+          const header = lines[0].toLowerCase();
+          const hasHeader = header.includes("volume") || header.includes("hour") || header.includes("value") || header.includes("date");
+          const dataLines = hasHeader ? lines.slice(1) : lines;
+
+          records = dataLines.map((line, idx) => {
+            const parts = line.split(/[,;\t]+/).map(p => p.trim());
+            if (parts.length >= 2) {
+              const val = parseFloat(parts[1]);
+              return {
+                hour: parts[0],
+                volume: !isNaN(val) ? val : parseFloat(parts[0]) || 0
+              };
+            } else if (parts.length === 1) {
+              return { volume: parseFloat(parts[0]) || 0 };
+            }
+            return null;
+          }).filter(Boolean);
+        }
+      }
+
+      const validRecords = records.filter(r => isFinite(r.volume) && r.volume >= 0);
+      if (validRecords.length < 3) {
+        throw new Error("File contains fewer than 3 valid data points.");
+      }
+
+      parsedFileRecords = validRecords;
+      $("upload-filename").textContent = file.name;
+      $("upload-count").textContent = validRecords.length;
+
+      const baseName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "-").toLowerCase();
+      if (!$("upload-topic").value) $("upload-topic").value = baseName;
+
+      // Render Preview
+      const previewRows = validRecords.slice(0, 5);
+      $("upload-preview-body").replaceChildren(
+        ...previewRows.map((r, i) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td style="padding: 6px 12px; color: var(--muted);">${i + 1}</td>
+                          <td style="padding: 6px 12px;">${r.hour || `Step ${i + 1}`}</td>
+                          <td style="padding: 6px 12px; text-align: right; font-weight: 600;">${r.volume}</td>`;
+          return tr;
+        })
+      );
+      $("upload-preview-wrap").hidden = false;
+      $("upload-predict-btn").disabled = false;
+      $("status").textContent = `✓ Loaded ${validRecords.length} records from ${file.name}. Click "Predict from Uploaded File".`;
+    } catch (err) {
+      $("status").textContent = `❌ File error: ${err.message}`;
+      $("upload-preview-wrap").hidden = true;
+      $("upload-predict-btn").disabled = true;
+    }
+  }
+
+  $("upload-predict-btn").addEventListener("click", async () => {
+    if (!parsedFileRecords.length) return;
+    const topic = $("upload-topic").value.trim() || "uploaded-trend";
+    const platform = $("upload-platform").value;
+    const horizon = parseInt($("upload-horizon").value, 10) || 24;
+    const save = $("upload-save").checked;
+
+    $("status").textContent = "Predicting from uploaded data…";
+    $("upload-predict-btn").disabled = true;
+
+    try {
+      const response = await fetch("/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          platform,
+          items: parsedFileRecords,
+          horizon,
+          save
+        })
+      });
+
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.detail || "Prediction failed.");
+
+      current = body;
+      render(body);
+      $("status").textContent = `✓ Forecast generated for ${topic} (${body.observations_used} points evaluated)!`;
+    } catch (err) {
+      $("status").textContent = `❌ ${err.message}`;
+    } finally {
+      $("upload-predict-btn").disabled = false;
+    }
+  });
+
+  // TAB 3: Database Explorer
+  async function loadDatabaseTopics() {
+    const dataset = $("db-dataset").value;
+    const platform = $("db-platform").value;
+    $("status").textContent = `Loading topics for ${platform} (${dataset})…`;
+    $("db-topic").replaceChildren();
+
+    try {
+      const res = await fetch(`/api/topics?dataset=${dataset}&platform=${platform}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to load topics.");
+
+      topicItems = data.items || [];
+      filterDatabaseTopics();
+      $("status").textContent = `Loaded ${topicItems.length} topics.`;
+    } catch (err) {
+      $("status").textContent = `❌ ${err.message}`;
+    }
+  }
+
+  function filterDatabaseTopics() {
+    const search = $("db-search").value.toLowerCase().trim();
+    const items = topicItems.filter(item => item.topic.includes(search));
+    $("db-topic").replaceChildren(
+      ...items.map(item => new Option(item.topic, item.topic))
+    );
+
+    const isImported = $("db-dataset").value === "imported";
+    $("db-delete-btn").hidden = !isImported || items.length === 0;
+
+    if (!items.length) {
+      $("status").textContent = "No topics found in this dataset. You can input custom data in the Direct Input tab!";
+    }
+  }
+
+  $("db-dataset").addEventListener("change", () => {
+    loadDatabaseTopics();
+    updateScopeNotice();
+  });
+  $("db-platform").addEventListener("change", loadDatabaseTopics);
+  $("db-search").addEventListener("input", filterDatabaseTopics);
+  $("db-refresh-btn").addEventListener("click", loadDatabaseTopics);
+
+  $("db-load-btn").addEventListener("click", async () => {
+    const topic = $("db-topic").value;
+    if (!topic) {
+      $("status").textContent = "Please select a topic from the dropdown.";
+      return;
+    }
+    const dataset = $("db-dataset").value;
+    const platform = $("db-platform").value;
+
+    $("status").textContent = `Fetching trend and predicting for ${topic}…`;
+    try {
+      const res = await fetch(`/api/trend?dataset=${dataset}&platform=${platform}&topic=${encodeURIComponent(topic)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to load trend.");
+
+      current = data;
+      render(data);
+      $("status").textContent = `✓ Forecast loaded for ${topic}!`;
+    } catch (err) {
+      $("status").textContent = `❌ ${err.message}`;
+    }
+  });
+
+  $("db-delete-btn").addEventListener("click", async () => {
+    const topic = $("db-topic").value;
+    if (!topic) return;
+    if (!confirm(`Are you sure you want to delete "${topic}" from your imported database?`)) return;
+
+    try {
+      const res = await fetch(`/api/topics/imported/${$("db-platform").value}/${encodeURIComponent(topic)}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Delete failed.");
+      $("status").textContent = `Deleted "${topic}" successfully.`;
+      loadDatabaseTopics();
+    } catch (err) {
+      $("status").textContent = `❌ ${err.message}`;
+    }
+  });
+
+  function updateScopeNotice() {
+    if (activeTab === "market") {
+      $("scope-notice").innerHTML = "🔥 <strong>TRENDING MARKET PULSE:</strong> Live real-time trending apps & global news channels with category and country filters. Click any card to forecast!";
+    } else if (activeTab === "live") {
+      $("scope-notice").innerHTML = "⚡ <strong>LIVE USER PREDICTION MODE:</strong> Enter or paste real-time observations to analyze momentum and forecast immediate future trends.";
+    } else if (activeTab === "upload") {
+      $("scope-notice").innerHTML = "📁 <strong>FILE IMPORT MODE:</strong> Drag & drop CSV or JSON timeseries data. Direct client parsing with automatic preview.";
+    } else {
+      const dataset = $("db-dataset").value;
+      $("scope-notice").innerHTML = dataset === "demo"
+        ? "🏛️ <strong>DEMO SAMPLES:</strong> Stored synthetic benchmark series for testing the multi-window Ridge model."
+        : "💾 <strong>IMPORTED DATABASE:</strong> User observations previously saved to the local SQLite database.";
+    }
+  }
+
+  // Render Forecast Results
+  function render(data) {
+    $("results").hidden = false;
+
+    // Header & Badges
+    $("heading").textContent = `${data.topic} · ${(data.platform || 'LIVE').toUpperCase()}`;
+
+    const sourceBadge = $("source-badge");
+    if (data.dataset === "live_user") {
+      sourceBadge.className = "source-tag live";
+      sourceBadge.textContent = "Live User Input";
+    } else if (data.dataset === "market") {
+      sourceBadge.className = "source-tag market";
+      sourceBadge.textContent = "Live Market Trend";
+    } else if (data.dataset === "demo") {
+      sourceBadge.className = "source-tag demo";
+      sourceBadge.textContent = "Synthetic Demo";
+    } else {
+      sourceBadge.className = "source-tag imported";
+      sourceBadge.textContent = "Imported Database";
+    }
+
+    $("model-badge").textContent = data.model || "adaptive-ridge";
+
+    // KPIs
+    $("kpi-previous").textContent = number(data.previous_24h);
+    $("kpi-predicted").textContent = number(data.forecast_24h);
+
+    const obsGrowth = data.observed_growth_pct;
+    $("kpi-observed-growth").textContent = percent(obsGrowth);
+    const obsTrend = $("kpi-obs-trend");
+    if (obsGrowth != null) {
+      obsTrend.className = `kpi-trend ${obsGrowth > 0 ? "up" : obsGrowth < 0 ? "down" : "neutral"}`;
+      obsTrend.textContent = obsGrowth > 0 ? "▲ Upward historical velocity" : "▼ Downward momentum";
+    } else {
+      obsTrend.className = "kpi-trend neutral";
+      obsTrend.textContent = "Initial observation window";
+    }
+
+    const predGrowth = data.forecast_growth_pct;
+    $("kpi-forecast-growth").textContent = percent(predGrowth);
+    const predTrend = $("kpi-pred-trend");
+    if (predGrowth != null) {
+      predTrend.className = `kpi-trend ${predGrowth > 0 ? "up" : predGrowth < 0 ? "down" : "neutral"}`;
+      predTrend.textContent = predGrowth > 0 ? "▲ Projected expansion" : "▼ Projected stabilization";
+    } else {
+      predTrend.className = "kpi-trend neutral";
+      predTrend.textContent = "Baseline steady projection";
+    }
+
+    // Details & Metrics
+    const evalData = data.evaluation || {};
+    const metricsBody = $("metrics-table");
+    metricsBody.replaceChildren(
+      createMetricRow("Model Holdout WAPE (lower is better)", percent(evalData.model_wape_pct)),
+      createMetricRow("Baseline WAPE", percent(evalData.baseline_wape_pct)),
+      createMetricRow("Direction Accuracy", percent(evalData.direction_accuracy_pct)),
+      createMetricRow("Test Windows Evaluated", String(evalData.test_windows || 1)),
+      createMetricRow("Observations Used", String(data.observations_used)),
+      createMetricRow("Forecast Steps", `${data.forecast ? data.forecast.length : 24} hours`)
+    );
+
+    $("eval-note").textContent = evalData.beats_baseline
+      ? "✓ Model outperformed the naive persistence baseline during holdout cross-validation."
+      : "Adaptive Ridge model with autoregressive and seasonal momentum components.";
+
+    $("insight-text").textContent = data.explanation ||
+      `Predicted activity shows ${predGrowth > 0 ? "rising momentum" : "stable/cooling dynamics"}.`;
+
+    // Compute peak forecast hour
+    if (data.forecast && data.forecast.length && data.forecast_hours) {
+      let maxVal = -1;
+      let maxIdx = 0;
+      data.forecast.forEach((v, i) => {
+        if (v > maxVal) { maxVal = v; maxIdx = i; }
+      });
+      const peakTime = new Date(data.forecast_hours[maxIdx]).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      $("insight-peak").textContent = `⚡ Projected Peak Activity: ~${number(maxVal)} mentions at ${peakTime}`;
+    } else {
+      $("insight-peak").textContent = "";
+    }
+
+    $("chart-freshness").textContent = `Last hour: ${new Date(data.last_observed_hour).toLocaleString()}`;
+
+    updateWatchlistUI();
+    renderChart(data);
+
+    // Scroll smoothly to results
+    $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function createMetricRow(label, value) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${label}</td><td>${value}</td>`;
+    return tr;
+  }
+
+  function renderChart(data) {
+    if (!window.Chart) return;
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
+
+    const historyLabels = data.history.map(item => item.hour);
+    const allLabels = [...historyLabels, ...data.forecast_hours];
+    const formattedLabels = allLabels.map(v => new Date(v).toLocaleString([], {
+      month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+    }));
+
+    const ctx = $("activity-chart").getContext("2d");
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 340);
+    gradient.addColorStop(0, "rgba(94, 241, 210, 0.28)");
+    gradient.addColorStop(1, "rgba(94, 241, 210, 0.0)");
+
+    const lastHistVal = data.history.length > 0 ? data.history[data.history.length - 1].volume : null;
+
+    chartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: formattedLabels,
+        datasets: [
+          {
+            label: "Observed Mentions",
+            data: [
+              ...data.history.map(h => h.volume),
+              ...Array(data.forecast.length).fill(null)
+            ],
+            borderColor: "#5ef1d2",
+            backgroundColor: gradient,
+            fill: true,
+            pointRadius: data.history.length <= 24 ? 3 : 0,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#5ef1d2",
+            borderWidth: 2.5,
+            tension: 0.25
+          },
+          {
+            label: "Model Forecast",
+            data: [
+              ...Array(Math.max(0, data.history.length - 1)).fill(null),
+              lastHistVal,
+              ...data.forecast
+            ],
+            borderColor: "#9f86ff",
+            borderDash: [6, 4],
+            fill: false,
+            pointRadius: data.forecast.length <= 24 ? 3 : 0,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#9f86ff",
+            borderWidth: 2.5,
+            tension: 0.25
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: {
+            labels: {
+              color: "#f0f4fc",
+              font: { family: "Plus Jakarta Sans", weight: 600 }
+            }
+          },
+          tooltip: {
+            backgroundColor: "rgba(14, 21, 38, 0.95)",
+            borderColor: "#233352",
+            borderWidth: 1,
+            titleFont: { family: "Plus Jakarta Sans", weight: 700 },
+            bodyFont: { family: "JetBrains Mono" },
+            padding: 12
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#8fa0c0", maxTicksLimit: 9 },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "Activity Mentions / Hour",
+              color: "#8fa0c0",
+              font: { family: "Plus Jakarta Sans", weight: 600 }
+            },
+            ticks: { color: "#8fa0c0" },
+            grid: { color: "rgba(35, 51, 82, 0.6)" }
+          }
+        }
+      }
+    });
+  }
+
+  // Watchlist Handlers
+  function getWatchlist() {
+    try {
+      return JSON.parse(localStorage.getItem("trendlens-watchlist") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function getWatchKey() {
+    return `${current.dataset || 'live'}/${current.platform || 'all'}/${current.topic}`;
+  }
+
+  function updateWatchlistUI() {
+    const list = getWatchlist();
+    const key = current ? getWatchKey() : null;
+    $("watch-btn").textContent = key && list.includes(key) ? "★ In Watchlist" : "⭐ Save to Watchlist";
+
+    const container = $("watchlist-container");
+    const chipsDiv = $("watchlist-chips");
+    if (!list.length) {
+      container.hidden = true;
+      return;
+    }
+    container.hidden = false;
+    chipsDiv.replaceChildren(
+      ...list.map(item => {
+        const span = document.createElement("span");
+        span.className = "watch-chip";
+        span.innerHTML = `<span>${item}</span><span class="watch-chip-remove" title="Remove">✕</span>`;
+        span.querySelector(".watch-chip-remove").addEventListener("click", e => {
+          e.stopPropagation();
+          const updated = getWatchlist().filter(x => x !== item);
+          localStorage.setItem("trendlens-watchlist", JSON.stringify(updated));
+          updateWatchlistUI();
+        });
+        return span;
+      })
+    );
+  }
+
+  $("watch-btn").addEventListener("click", () => {
+    if (!current) return;
+    const key = getWatchKey();
+    const list = getWatchlist();
+    const updated = list.includes(key) ? list.filter(k => k !== key) : [...list, key];
+    localStorage.setItem("trendlens-watchlist", JSON.stringify(updated));
+    updateWatchlistUI();
+  });
+
+  // Export Forecast CSV
+  $("export-btn").addEventListener("click", () => {
+    if (!current || !current.forecast) return;
+    const csv = [
+      "hour_utc,predicted_mentions",
+      ...current.forecast_hours.map((h, i) => `${h},${current.forecast[i]}`)
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `forecast-${current.topic}-${current.platform || 'all'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  // Initialize
+  updateScopeNotice();
+  updateLiveStats();
+  $("live-data").value = PRESETS.steady.join(", ");
+  updateLiveStats();
+  // Load initial market trends
+  loadMarketData();
+</script>
+</body>
+</html>

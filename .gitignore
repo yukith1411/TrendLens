@@ -1,0 +1,31 @@
+# Virtual environments
+.venv/
+.venv-1/
+venv/
+env/
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases
+*.db
+*.sqlite3
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
